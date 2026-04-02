@@ -1,0 +1,27 @@
+# =============================================================================
+# .gitignore — Files and folders Git should NOT track
+# =============================================================================
+
+# Environment variables file — contains secrets like passwords!
+.env
+
+# Python virtual environment folder
+venv/
+
+# Python compiled bytecode (auto-generated, not source code)
+__pycache__/
+*.pyc
+*.pyo
+
+# Uploaded files (CSVs, attachments, QR codes) — don't commit user data
+uploads/
+
+# IDE / editor settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db

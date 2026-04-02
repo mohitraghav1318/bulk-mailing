@@ -1,0 +1,986 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk Mailer — Dashboard</title>
+
+    <!-- Google Font: Space Grotesk — a clean, geometric font that's distinctive but readable -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        /* ================================================================
+           CSS VARIABLES — Colors and sizes we reuse throughout the design.
+           Changing a variable here updates it everywhere automatically.
+           ================================================================ */
+        :root {
+            /* Background colors — deep dark palette */
+            --bg-primary: #0f1117;
+            --bg-secondary: #161821;
+            --bg-card: #1c1e2b;
+            --bg-input: #12131c;
+            --bg-hover: #252838;
+
+            /* Text colors */
+            --text-primary: #e8eaf0;
+            --text-secondary: #8b8fa3;
+            --text-muted: #5c5f73;
+
+            /* Accent color — electric blue */
+            --accent: #4f8ef7;
+            --accent-hover: #6ba0ff;
+            --accent-glow: rgba(79, 142, 247, 0.15);
+
+            /* Status colors */
+            --success: #34d399;
+            --error: #f87171;
+
+            /* Border and spacing */
+            --border: #2a2d3e;
+            --radius: 8px;
+            --radius-lg: 12px;
+        }
+
+        /* ================================================================
+           RESET — Remove default browser styling so we start clean.
+           ================================================================ */
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ================================================================
+           BASE STYLES
+           ================================================================ */
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* ================================================================
+           NAVBAR — Top navigation bar with app name and branding.
+           ================================================================ */
+        .navbar {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 0 2rem;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .navbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .navbar-brand .icon {
+            width: 32px;
+            height: 32px;
+            background: var(--accent);
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .navbar-status {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        /* ================================================================
+           MAIN LAYOUT — Two-column grid for the dashboard.
+           ================================================================ */
+        .main-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem 2rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        /* ================================================================
+           CARDS — Reusable container with dark background and border.
+           ================================================================ */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-title .badge {
+            font-size: 0.7rem;
+            background: var(--accent-glow);
+            color: var(--accent);
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        /* ================================================================
+           FORM ELEMENTS — Text inputs, textareas, labels.
+           ================================================================ */
+        label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 0.7rem 1rem;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            outline: none;
+        }
+
+        input[type="text"]:focus,
+        textarea:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px var(--accent-glow);
+        }
+
+        textarea {
+            min-height: 200px;
+            resize: vertical;
+            line-height: 1.7;
+        }
+
+        /* ================================================================
+           FILE UPLOAD AREAS — Drag-and-drop style zones.
+           ================================================================ */
+        .upload-zone {
+            border: 2px dashed var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s, background 0.2s;
+            position: relative;
+        }
+
+        .upload-zone:hover {
+            border-color: var(--accent);
+            background: var(--accent-glow);
+        }
+
+        .upload-zone .upload-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .upload-zone .upload-text {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .upload-zone .upload-text strong {
+            color: var(--accent);
+        }
+
+        .upload-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        /* ================================================================
+           FILE LIST — Shows names of uploaded files.
+           ================================================================ */
+        .file-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 0.75rem;
+        }
+
+        .file-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: var(--bg-hover);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .file-tag .remove-file {
+            cursor: pointer;
+            color: var(--error);
+            font-weight: 700;
+            margin-left: 2px;
+        }
+
+        /* ================================================================
+           COLUMN CHIPS — Clickable chips showing CSV column names.
+           ================================================================ */
+        .columns-section {
+            margin-top: 1rem;
+        }
+
+        .chips-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 0.5rem;
+        }
+
+        .chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 6px 14px;
+            background: var(--accent-glow);
+            border: 1px solid rgba(79, 142, 247, 0.3);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: var(--accent);
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .chip:hover {
+            background: rgba(79, 142, 247, 0.25);
+            border-color: var(--accent);
+            transform: translateY(-1px);
+        }
+
+        .chip:active {
+            transform: translateY(0);
+        }
+
+        .chip .chip-icon {
+            font-size: 0.7rem;
+            opacity: 0.7;
+        }
+
+        .columns-empty {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            font-style: italic;
+        }
+
+        /* ================================================================
+           BUTTONS
+           ================================================================ */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 0.7rem 1.5rem;
+            border: none;
+            border-radius: var(--radius);
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            box-shadow: 0 4px 15px rgba(79, 142, 247, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        /* ================================================================
+           SPINNER — Loading animation shown while sending emails.
+           ================================================================ */
+        .spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.6s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ================================================================
+           RESULTS TABLE — Shows send status for each email.
+           ================================================================ */
+        .results-section {
+            margin-top: 1rem;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        .results-table th {
+            text-align: left;
+            padding: 0.6rem 0.8rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .results-table td {
+            padding: 0.6rem 0.8rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .results-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .status-sent {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .status-failed {
+            color: var(--error);
+            font-weight: 600;
+        }
+
+        .results-empty {
+            text-align: center;
+            color: var(--text-muted);
+            padding: 2rem;
+            font-style: italic;
+        }
+
+        /* ================================================================
+           SUMMARY BAR — Shows count of sent/failed after sending.
+           ================================================================ */
+        .summary-bar {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1rem;
+            padding: 0.8rem 1rem;
+            background: var(--bg-hover);
+            border-radius: var(--radius);
+        }
+
+        .summary-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.85rem;
+        }
+
+        .summary-item .count {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .summary-sent .count { color: var(--success); }
+        .summary-failed .count { color: var(--error); }
+
+        /* ================================================================
+           SECTION SPACING
+           ================================================================ */
+        .section-gap {
+            margin-top: 1.5rem;
+        }
+
+        /* ================================================================
+           SCROLLBAR STYLING — Match the dark theme.
+           ================================================================ */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        /* ================================================================
+           RESPONSIVE — Stack columns on smaller screens.
+           ================================================================ */
+        @media (max-width: 900px) {
+            .main-container {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ================================================================
+         NAVBAR — Top bar with app branding
+         ================================================================ -->
+    <nav class="navbar">
+        <a href="/" class="navbar-brand">
+            <span class="icon">M</span>
+            Bulk Mailer
+        </a>
+        <span class="navbar-status">Compose &amp; Send</span>
+    </nav>
+
+    <!-- ================================================================
+         MAIN CONTENT — Two-column dashboard layout
+         ================================================================ -->
+    <div class="main-container">
+
+        <!-- ============================================================
+             LEFT COLUMN — Compose email, upload CSV, upload attachments
+             ============================================================ -->
+        <div class="left-column">
+
+            <!-- Card: Compose Email -->
+            <div class="card">
+                <div class="card-title">
+                    Compose Email
+                    <span class="badge">HTML + Placeholders</span>
+                </div>
+
+                <form id="composeForm">
+                    <!-- Subject line input -->
+                    <div>
+                        <label for="subjectInput">Subject</label>
+                        <input type="text" id="subjectInput" placeholder="e.g. Welcome to {{team}}, {{name}}!">
+                    </div>
+
+                    <!-- HTML body textarea — where the email content goes -->
+                    <div style="margin-top: 1rem;">
+                        <label for="bodyTextarea">Body (HTML) — click chips below to insert placeholders</label>
+                        <textarea id="bodyTextarea" placeholder="Hello {{name}},&#10;&#10;Welcome to the {{team}} team!&#10;&#10;Your QR code is attached."></textarea>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Card: Upload CSV -->
+            <div class="card section-gap">
+                <div class="card-title">Upload Recipients (CSV)</div>
+
+                <div class="upload-zone" id="csvUploadZone">
+                    <div class="upload-icon">CSV</div>
+                    <div class="upload-text">
+                        <strong>Click to upload</strong> or drag &amp; drop<br>
+                        .csv file with columns like name, email, team
+                    </div>
+                    <!-- The actual file input is invisible but covers the zone -->
+                    <input type="file" id="csvFileInput" accept=".csv">
+                </div>
+
+                <!-- Shows the filename after upload -->
+                <div id="csvFileName" class="file-list" style="display:none;"></div>
+
+                <!-- Shows detected column chips after CSV is uploaded -->
+                <div class="columns-section" id="columnsSection" style="display:none;">
+                    <label>Detected Columns — click to insert into body</label>
+                    <div class="chips-container" id="chipsContainer"></div>
+                </div>
+            </div>
+
+            <!-- Card: Static Attachments -->
+            <div class="card section-gap">
+                <div class="card-title">Static Attachments (optional)</div>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 0.75rem;">
+                    These files are attached to every email.
+                </p>
+
+                <div class="upload-zone" id="attachmentsUploadZone">
+                    <div class="upload-icon">FILES</div>
+                    <div class="upload-text">
+                        <strong>Click to upload</strong> PDFs, images, or documents
+                    </div>
+                    <input type="file" id="attachmentsInput" multiple>
+                </div>
+
+                <!-- Shows uploaded attachment filenames -->
+                <div id="attachmentsList" class="file-list"></div>
+            </div>
+
+            <!-- Send Button -->
+            <div class="section-gap">
+                <button class="btn btn-primary btn-full" id="sendBtn" disabled>
+                    Send Bulk Emails
+                </button>
+            </div>
+        </div>
+
+        <!-- ============================================================
+             RIGHT COLUMN — Preview columns, send results
+             ============================================================ -->
+        <div class="right-column">
+
+            <!-- Card: Column Preview -->
+            <div class="card">
+                <div class="card-title">Columns Preview</div>
+                <div id="previewContent">
+                    <p class="columns-empty">Upload a CSV file to see available columns here.</p>
+                </div>
+            </div>
+
+            <!-- Card: Send Results -->
+            <div class="card section-gap">
+                <div class="card-title">Send Results</div>
+
+                <!-- Summary bar appears after sending -->
+                <div id="summaryBar" class="summary-bar" style="display:none;">
+                    <div class="summary-item summary-sent">
+                        <span class="count" id="sentCount">0</span> sent
+                    </div>
+                    <div class="summary-item summary-failed">
+                        <span class="count" id="failedCount">0</span> failed
+                    </div>
+                </div>
+
+                <!-- Results table -->
+                <div class="results-section">
+                    <table class="results-table" id="resultsTable" style="display:none;">
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsBody"></tbody>
+                    </table>
+                    <div id="resultsEmpty" class="results-empty">
+                        Results will appear here after sending.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         JAVASCRIPT — All the frontend logic
+         ================================================================ -->
+    <script>
+        // ================================================================
+        // STATE — Variables that track what's happening in the app
+        // ================================================================
+
+        // The unique filename assigned to the uploaded CSV (returned by the server)
+        let uploadedCsvFilename = null;
+
+        // List of column names detected from the CSV
+        let csvColumns = [];
+
+        // List of uploaded static attachment filenames
+        let uploadedAttachments = [];
+
+
+        // ================================================================
+        // DOM REFERENCES — Get references to HTML elements we'll manipulate
+        // ================================================================
+
+        const csvFileInput      = document.getElementById("csvFileInput");
+        const csvUploadZone     = document.getElementById("csvUploadZone");
+        const csvFileName       = document.getElementById("csvFileName");
+        const columnsSection    = document.getElementById("columnsSection");
+        const chipsContainer    = document.getElementById("chipsContainer");
+        const previewContent    = document.getElementById("previewContent");
+        const bodyTextarea      = document.getElementById("bodyTextarea");
+        const subjectInput      = document.getElementById("subjectInput");
+        const attachmentsInput  = document.getElementById("attachmentsInput");
+        const attachmentsUploadZone = document.getElementById("attachmentsUploadZone");
+        const attachmentsList   = document.getElementById("attachmentsList");
+        const sendBtn           = document.getElementById("sendBtn");
+        const summaryBar        = document.getElementById("summaryBar");
+        const sentCountEl       = document.getElementById("sentCount");
+        const failedCountEl     = document.getElementById("failedCount");
+        const resultsTable      = document.getElementById("resultsTable");
+        const resultsBody       = document.getElementById("resultsBody");
+        const resultsEmpty      = document.getElementById("resultsEmpty");
+
+
+        // ================================================================
+        // CSV UPLOAD — Handle file selection and send to backend
+        // ================================================================
+
+        // When the user selects a CSV file, automatically upload it
+        csvFileInput.addEventListener("change", async function () {
+            const file = this.files[0];
+            if (!file) return;
+
+            // Show the filename
+            csvFileName.style.display = "flex";
+            csvFileName.innerHTML = `<span class="file-tag">${file.name}</span>`;
+
+            // Create a FormData object to send the file to the server.
+            // FormData is a browser API that lets us build key-value pairs
+            // for multipart/form-data requests (the format used for file uploads).
+            const formData = new FormData();
+            formData.append("csv_file", file);
+
+            try {
+                // fetch() sends an HTTP request to the server.
+                // We POST to /upload with the file attached.
+                const response = await fetch("/upload", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    alert("Upload error: " + data.error);
+                    return;
+                }
+
+                // Store the server-assigned filename and columns
+                uploadedCsvFilename = data.filename;
+                csvColumns = data.columns;
+
+                // Update the UI to show the detected columns
+                renderColumnChips(csvColumns);
+                renderColumnPreview(csvColumns);
+
+                // Enable the send button if we have everything we need
+                updateSendButton();
+
+            } catch (err) {
+                alert("Failed to upload CSV: " + err.message);
+            }
+        });
+
+
+        // ================================================================
+        // RENDER COLUMN CHIPS — Show clickable chips for each CSV column
+        // ================================================================
+
+        function renderColumnChips(columns) {
+            // Show the columns section
+            columnsSection.style.display = "block";
+
+            // Clear existing chips
+            chipsContainer.innerHTML = "";
+
+            // Create a chip for each column
+            columns.forEach(function (col) {
+                const chip = document.createElement("span");
+                chip.className = "chip";
+                chip.innerHTML = `<span class="chip-icon">+</span> {{${col}}}`;
+
+                // When clicked, insert the placeholder at the cursor position
+                chip.addEventListener("click", function () {
+                    insertAtCursor(bodyTextarea, `{{${col}}}`);
+                });
+
+                chipsContainer.appendChild(chip);
+            });
+        }
+
+
+        // ================================================================
+        // RENDER COLUMN PREVIEW — Show columns in the right panel
+        // ================================================================
+
+        function renderColumnPreview(columns) {
+            previewContent.innerHTML = "";
+
+            columns.forEach(function (col) {
+                const chip = document.createElement("span");
+                chip.className = "chip";
+                chip.style.cursor = "default";
+                chip.innerHTML = `<span class="chip-icon">#</span> ${col}`;
+                chip.addEventListener("click", function () {
+                    insertAtCursor(bodyTextarea, `{{${col}}}`);
+                });
+                previewContent.appendChild(chip);
+            });
+
+            // Add spacing between chips
+            previewContent.style.display = "flex";
+            previewContent.style.flexWrap = "wrap";
+            previewContent.style.gap = "8px";
+        }
+
+
+        // ================================================================
+        // INSERT TEXT AT CURSOR — Puts {{placeholder}} where the cursor is
+        // ================================================================
+
+        function insertAtCursor(textarea, text) {
+            // Get the current cursor position
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+
+            // Get the current value of the textarea
+            const before = textarea.value.substring(0, start);
+            const after = textarea.value.substring(end);
+
+            // Insert the new text at the cursor position
+            textarea.value = before + text + after;
+
+            // Move the cursor to right after the inserted text
+            const newPos = start + text.length;
+            textarea.selectionStart = newPos;
+            textarea.selectionEnd = newPos;
+
+            // Focus the textarea so the user can keep typing
+            textarea.focus();
+        }
+
+
+        // ================================================================
+        // STATIC ATTACHMENTS UPLOAD — Handle multiple file uploads
+        // ================================================================
+
+        attachmentsInput.addEventListener("change", async function () {
+            const files = this.files;
+            if (!files.length) return;
+
+            const formData = new FormData();
+            for (let i = 0; i < files.length; i++) {
+                formData.append("attachments", files[i]);
+            }
+
+            try {
+                const response = await fetch("/upload-attachments", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    alert("Upload error: " + data.error);
+                    return;
+                }
+
+                // Add new filenames to our list
+                data.attachments.forEach(function (name) {
+                    uploadedAttachments.push(name);
+                });
+
+                // Re-render the attachment tags
+                renderAttachmentTags();
+
+                // Update the send button state
+                updateSendButton();
+
+            } catch (err) {
+                alert("Failed to upload attachments: " + err.message);
+            }
+        });
+
+
+        // ================================================================
+        // RENDER ATTACHMENT TAGS — Show filenames of uploaded attachments
+        // ================================================================
+
+        function renderAttachmentTags() {
+            attachmentsList.innerHTML = "";
+
+            uploadedAttachments.forEach(function (name, index) {
+                const tag = document.createElement("span");
+                tag.className = "file-tag";
+
+                // Show a shortened version of the filename
+                // (the server adds a uuid prefix, so we show the original name)
+                const displayName = name.substring(name.indexOf("_") + 1);
+                tag.innerHTML = `${displayName} <span class="remove-file" data-index="${index}">&times;</span>`;
+                attachmentsList.appendChild(tag);
+            });
+
+            // Add click handlers for the remove buttons
+            document.querySelectorAll(".remove-file").forEach(function (btn) {
+                btn.addEventListener("click", function () {
+                    const idx = parseInt(this.getAttribute("data-index"));
+                    uploadedAttachments.splice(idx, 1);
+                    renderAttachmentTags();
+                    updateSendButton();
+                });
+            });
+        }
+
+
+        // ================================================================
+        // UPDATE SEND BUTTON — Enable only when CSV is uploaded
+        // ================================================================
+
+        function updateSendButton() {
+            sendBtn.disabled = !uploadedCsvFilename;
+        }
+
+
+        // ================================================================
+        // SEND EMAILS — The main action: POST to /send and show results
+        // ================================================================
+
+        sendBtn.addEventListener("click", async function () {
+            // Validate: need a subject and body
+            if (!subjectInput.value.trim()) {
+                alert("Please enter a subject line.");
+                return;
+            }
+            if (!bodyTextarea.value.trim()) {
+                alert("Please enter the email body.");
+                return;
+            }
+
+            // Confirm before sending
+            if (!confirm("Send emails to all recipients in the CSV?")) {
+                return;
+            }
+
+            // Disable the button and show a spinner
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = '<span class="spinner"></span> Sending...';
+
+            // Build the form data with all the email details
+            const formData = new FormData();
+            formData.append("subject", subjectInput.value);
+            formData.append("body", bodyTextarea.value);
+            formData.append("csv_filename", uploadedCsvFilename);
+
+            // Add each attachment filename
+            uploadedAttachments.forEach(function (name) {
+                formData.append("attachments", name);
+            });
+
+            try {
+                // Send the request to the backend
+                const response = await fetch("/send", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                const data = await response.json();
+
+                if (data.error) {
+                    alert("Error: " + data.error);
+                    return;
+                }
+
+                // Display the results
+                displayResults(data.results);
+
+            } catch (err) {
+                alert("Failed to send emails: " + err.message);
+            } finally {
+                // Re-enable the button
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = "Send Bulk Emails";
+            }
+        });
+
+
+        // ================================================================
+        // DISPLAY RESULTS — Show a table of sent/failed emails
+        // ================================================================
+
+        function displayResults(results) {
+            // Hide the "no results" message and show the table
+            resultsEmpty.style.display = "none";
+            resultsTable.style.display = "table";
+            summaryBar.style.display = "flex";
+
+            // Clear old results
+            resultsBody.innerHTML = "";
+
+            // Count sent vs failed
+            let sentCount = 0;
+            let failedCount = 0;
+
+            results.forEach(function (result) {
+                // Create a new table row
+                const row = document.createElement("tr");
+
+                // Determine status class and text
+                const statusClass = result.status === "sent" ? "status-sent" : "status-failed";
+                const statusText = result.status === "sent" ? "Sent" : "Failed";
+                const detailText = result.reason || "-";
+
+                // Count for summary
+                if (result.status === "sent") sentCount++;
+                else failedCount++;
+
+                // Build the row HTML
+                row.innerHTML = `
+                    <td>${result.email}</td>
+                    <td class="${statusClass}">${statusText}</td>
+                    <td>${detailText}</td>
+                `;
+
+                resultsBody.appendChild(row);
+            });
+
+            // Update the summary counts
+            sentCountEl.textContent = sentCount;
+            failedCountEl.textContent = failedCount;
+        }
+
+    </script>
+</body>
+</html>

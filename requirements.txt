@@ -1,0 +1,11 @@
+# =============================================================================
+# requirements.txt — Python packages that need to be installed via pip
+# =============================================================================
+# Install all of these with: pip install -r requirements.txt
+#
+# Note: csv, smtplib, email, re, os, uuid are part of Python's standard library
+# and do NOT need to be installed. Only the packages below need pip.
+# =============================================================================
+
+Flask==3.1.0          # Web framework — handles HTTP requests and serves HTML
+python-dotenv==1.1.0  # Loads environment variables from .env files
