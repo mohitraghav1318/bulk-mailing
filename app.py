@@ -30,7 +30,7 @@ app = Flask(__name__)
 
 # --- Define folder paths ---
 # BASE_DIR is the folder where app.py lives.
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(os.path.abspath(__file__
 
 # UPLOAD_FOLDER is where we store uploaded CSV files and attachments temporarily.
 UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
