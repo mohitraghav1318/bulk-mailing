@@ -26,7 +26,7 @@ def replace_placeholders(template_string, row_data):
     from a CSV row.
 
     Example:
-        template_string = "Hello {{name}}, welcome to {{team}}!"
+        template_string = "Hell
         row_data = {"name": "Alice", "team": "Engineering"}
         Result: "Hello Alice, welcome to Engineering!"
 
